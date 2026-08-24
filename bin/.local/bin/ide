@@ -47,7 +47,7 @@ editor_pane=$(printf '%s' "$workspace_json" | jq -er '.result.root_pane.pane_id'
 herdr pane split \
 	--pane "$editor_pane" \
 	--direction down \
-	--ratio 0.25 \
+	--ratio 0.85 \
 	--cwd "$project_dir" \
 	--no-focus >/dev/null
 

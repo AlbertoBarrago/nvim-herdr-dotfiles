@@ -10,7 +10,8 @@ Personal development environment configuration for Neovim and Herdr.
 ## Herdr IDE workspace
 
 Run `ide [project-directory]` from an existing Herdr pane. It creates a dedicated
-workspace with Neovim, a Codex pane connected to Neovim, and a shell pane.
+workspace with Neovim, a Codex pane connected to Neovim, and a compact shell pane
+across the bottom 15% of the workspace.
 
 Neovim mappings are available only when it runs inside Herdr:
 
