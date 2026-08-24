@@ -1,8 +1,9 @@
 # Neovim + Herdr dotfiles
 
-Shared development environment with Neovim, Codex, and a persistent Herdr
-workspace. The `ide` command creates an editor and Codex area across the top 85%
-of the workspace, with a compact shell across the bottom 15%.
+Shared development environment with Neovim, Codex, Claude Code, and a persistent
+Herdr workspace. The `ide` command creates an editor and agent area across the
+top 85% of the workspace, with a compact shell across the bottom 15%. Codex is
+the default agent.
 
 ## Requirements
 
@@ -10,6 +11,7 @@ of the workspace, with a compact shell across the bottom 15%.
 - Neovim 0.10 or newer
 - Herdr 0.7.5 or newer
 - Codex CLI
+- Claude Code CLI
 - `jq`
 
 The installer checks these executables but does not install system packages.
@@ -42,7 +44,11 @@ Open Herdr and create a workspace for a project:
 ```sh
 herdr
 ide ~/Projects/example
+ide --agent claude ~/Projects/example
 ```
+
+Pass `--agent codex` or `--agent claude` to select the initial agent. Omitting
+the option launches Codex.
 
 ## Neovim mappings
 
@@ -54,6 +60,10 @@ These mappings are available only when Neovim runs inside Herdr:
 | `<leader>af` | Focus the connected Codex pane |
 | `<leader>as` | Send the visual selection to Codex |
 | `<leader>ad` | Send current buffer diagnostics to Codex |
+| `<leader>aco` | Open or focus Claude |
+| `<leader>acf` | Focus the connected Claude pane |
+| `<leader>acs` | Send the visual selection to Claude |
+| `<leader>acd` | Send current buffer diagnostics to Claude |
 
 ## Machine-specific configuration
 

@@ -7,14 +7,58 @@ if [ "${HERDR_ENV:-}" != "1" ]; then
 	exit 1
 fi
 
-for dependency in herdr jq nvim codex; do
+agent=codex
+project_dir=
+
+while [ "$#" -gt 0 ]; do
+	case "$1" in
+		--agent)
+			if [ "$#" -lt 2 ]; then
+				printf '%s\n' "Missing value for --agent." >&2
+				exit 2
+			fi
+			agent=$2
+			shift 2
+			;;
+		--agent=*)
+			agent=${1#--agent=}
+			shift
+			;;
+		-h | --help)
+			printf 'Usage: %s [--agent codex|claude] [project-directory]\n' "$0"
+			exit 0
+			;;
+		-*)
+			printf 'Unknown option: %s\n' "$1" >&2
+			exit 2
+			;;
+		*)
+			if [ -n "$project_dir" ]; then
+				printf '%s\n' "Only one project directory can be provided." >&2
+				exit 2
+			fi
+			project_dir=$1
+			shift
+			;;
+	esac
+done
+
+case "$agent" in
+	codex | claude) ;;
+	*)
+		printf 'Unsupported agent: %s (expected codex or claude)\n' "$agent" >&2
+		exit 2
+		;;
+esac
+
+for dependency in herdr jq nvim "$agent"; do
 	if ! command -v "$dependency" >/dev/null 2>&1; then
 		printf 'Missing dependency: %s\n' "$dependency" >&2
 		exit 1
 	fi
 done
 
-project_dir=${1:-"$PWD"}
+project_dir=${project_dir:-"$PWD"}
 if [ ! -d "$project_dir" ]; then
 	printf 'Not a directory: %s\n' "$project_dir" >&2
 	exit 1
@@ -37,7 +81,7 @@ trap cleanup EXIT INT TERM
 workspace_json=$(herdr workspace create \
 	--cwd "$project_dir" \
 	--label "$workspace_label" \
-	--env HERDR_NVIM_AGENT=codex \
+	--env "HERDR_NVIM_AGENT=$agent" \
 	--env 'HERDR_NVIM_AGENT_ARGS_JSON=[]' \
 	--no-focus)
 
