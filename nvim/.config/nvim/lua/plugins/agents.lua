@@ -1,4 +1,4 @@
-local inside_herdr = vim.env.HERDR_SOCKET_PATH and vim.env.HERDR_SOCKET_PATH ~= ""
+local inside_herdr = vim.env.HERDR_SOCKET_PATH ~= nil and vim.env.HERDR_SOCKET_PATH ~= ""
 
 return {
 	{
