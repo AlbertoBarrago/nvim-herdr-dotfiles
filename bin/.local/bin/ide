@@ -1,0 +1,57 @@
+#!/bin/sh
+
+set -eu
+
+if [ "${HERDR_ENV:-}" != "1" ]; then
+	printf '%s\n' "ide must be run from a Herdr pane." >&2
+	exit 1
+fi
+
+for dependency in herdr jq nvim codex; do
+	if ! command -v "$dependency" >/dev/null 2>&1; then
+		printf 'Missing dependency: %s\n' "$dependency" >&2
+		exit 1
+	fi
+done
+
+project_dir=${1:-"$PWD"}
+if [ ! -d "$project_dir" ]; then
+	printf 'Not a directory: %s\n' "$project_dir" >&2
+	exit 1
+fi
+
+project_dir=$(cd "$project_dir" && pwd -P)
+workspace_label=$(basename "$project_dir")
+workspace_id=
+
+cleanup() {
+	exit_code=$?
+	trap - EXIT INT TERM
+	if [ "$exit_code" -ne 0 ] && [ -n "$workspace_id" ]; then
+		herdr workspace close "$workspace_id" >/dev/null 2>&1 || true
+	fi
+	exit "$exit_code"
+}
+trap cleanup EXIT INT TERM
+
+workspace_json=$(herdr workspace create \
+	--cwd "$project_dir" \
+	--label "$workspace_label" \
+	--env HERDR_NVIM_AGENT=codex \
+	--env 'HERDR_NVIM_AGENT_ARGS_JSON=[]' \
+	--no-focus)
+
+workspace_id=$(printf '%s' "$workspace_json" | jq -er '.result.workspace.workspace_id')
+editor_pane=$(printf '%s' "$workspace_json" | jq -er '.result.root_pane.pane_id')
+
+herdr pane split \
+	--pane "$editor_pane" \
+	--direction down \
+	--ratio 0.25 \
+	--cwd "$project_dir" \
+	--no-focus >/dev/null
+
+herdr pane run "$editor_pane" nvim >/dev/null
+herdr workspace focus "$workspace_id" >/dev/null
+
+trap - EXIT INT TERM
