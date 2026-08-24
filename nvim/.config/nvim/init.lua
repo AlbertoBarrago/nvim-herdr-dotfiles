@@ -507,3 +507,8 @@ vim.g.lazygit_use_neovim_remote = 1
 -- Colorscheme
 -- ==============================
 vim.cmd.colorscheme("tokyonight")
+
+local local_config = vim.fn.stdpath("config") .. "/lua/local.lua"
+if vim.uv.fs_stat(local_config) then
+	dofile(local_config)
+end
