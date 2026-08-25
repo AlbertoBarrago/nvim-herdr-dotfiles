@@ -203,7 +203,22 @@ require("lazy").setup({
 			vim.cmd.colorscheme("tokyonight-moon")
 		end,
 	},
-	"nvim-treesitter/nvim-treesitter",
+	{
+		"nvim-treesitter/nvim-treesitter",
+		branch = "main",
+		build = ":TSUpdate",
+		config = function()
+			local parsers = { "elixir", "heex", "eex", "lua", "python", "java", "javascript", "typescript" }
+			require("nvim-treesitter").install(parsers)
+			vim.api.nvim_create_autocmd("FileType", {
+				pattern = parsers,
+				callback = function()
+					vim.treesitter.start()
+					vim.opt_local.indentexpr = "v:lua.vim.treesitter.indentexpr()"
+				end,
+			})
+		end,
+	},
 	"neovim/nvim-lspconfig",
 	"williamboman/mason.nvim",
 	"williamboman/mason-lspconfig.nvim",
@@ -365,18 +380,6 @@ vim.defer_fn(function()
 	vim.g.coq_settings = { auto_start = "shut-up" }
 end, 100)
 
--- ==============================
--- Treesitter Setup
--- ==============================
-require("nvim-treesitter.configs").setup({
-	ensure_installed = { "elixir", "heex", "eex", "lua", "python", "java", "javascript", "typescript" },
-	highlight = {
-		enable = true,
-	},
-	indent = {
-		enable = true,
-	},
-})
 
 -- ==============================
 -- Keybindings
