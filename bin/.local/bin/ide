@@ -67,26 +67,50 @@ fi
 project_dir=$(cd "$project_dir" && pwd -P)
 workspace_label=$(basename "$project_dir")
 workspace_id=
+created_tab_id=
+created_workspace=false
 
 cleanup() {
 	exit_code=$?
 	trap - EXIT INT TERM
-	if [ "$exit_code" -ne 0 ] && [ -n "$workspace_id" ]; then
-		herdr workspace close "$workspace_id" >/dev/null 2>&1 || true
+	if [ "$exit_code" -ne 0 ]; then
+		if [ -n "$created_tab_id" ]; then
+			herdr tab close "$created_tab_id" >/dev/null 2>&1 || true
+		elif [ "$created_workspace" = true ] && [ -n "$workspace_id" ]; then
+			herdr workspace close "$workspace_id" >/dev/null 2>&1 || true
+		fi
 	fi
 	exit "$exit_code"
 }
 trap cleanup EXIT INT TERM
 
-workspace_json=$(herdr workspace create \
-	--cwd "$project_dir" \
-	--label "$workspace_label" \
-	--env "HERDR_NVIM_AGENT=$agent" \
-	--env 'HERDR_NVIM_AGENT_ARGS_JSON=[]' \
-	--no-focus)
+existing_workspace_id=$(herdr workspace list | jq -er --arg label "$workspace_label" \
+	'.result.workspaces[] | select(.label == $label) | .workspace_id' 2>/dev/null | head -n1 || true)
 
-workspace_id=$(printf '%s' "$workspace_json" | jq -er '.result.workspace.workspace_id')
-editor_pane=$(printf '%s' "$workspace_json" | jq -er '.result.root_pane.pane_id')
+if [ -n "$existing_workspace_id" ]; then
+	workspace_id=$existing_workspace_id
+	tab_json=$(herdr tab create \
+		--workspace "$workspace_id" \
+		--cwd "$project_dir" \
+		--label "$workspace_label" \
+		--env "HERDR_NVIM_AGENT=$agent" \
+		--env 'HERDR_NVIM_AGENT_ARGS_JSON=[]' \
+		--no-focus)
+
+	created_tab_id=$(printf '%s' "$tab_json" | jq -er '.result.tab.tab_id')
+	editor_pane=$(printf '%s' "$tab_json" | jq -er '.result.root_pane.pane_id')
+else
+	workspace_json=$(herdr workspace create \
+		--cwd "$project_dir" \
+		--label "$workspace_label" \
+		--env "HERDR_NVIM_AGENT=$agent" \
+		--env 'HERDR_NVIM_AGENT_ARGS_JSON=[]' \
+		--no-focus)
+	created_workspace=true
+
+	workspace_id=$(printf '%s' "$workspace_json" | jq -er '.result.workspace.workspace_id')
+	editor_pane=$(printf '%s' "$workspace_json" | jq -er '.result.root_pane.pane_id')
+fi
 
 herdr pane split \
 	--pane "$editor_pane" \
@@ -96,6 +120,10 @@ herdr pane split \
 	--no-focus >/dev/null
 
 herdr pane run "$editor_pane" nvim >/dev/null
+
+if [ -n "$created_tab_id" ]; then
+	herdr tab focus "$created_tab_id" >/dev/null
+fi
 herdr workspace focus "$workspace_id" >/dev/null
 
 trap - EXIT INT TERM
