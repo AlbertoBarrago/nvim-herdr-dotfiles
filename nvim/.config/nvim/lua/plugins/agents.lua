@@ -7,41 +7,11 @@ return {
 		lazy = false,
 		dependencies = {
 			{ "coder/claudecode.nvim", dependencies = { "folke/snacks.nvim" } },
-			{ "ishiooon/codex.nvim", dependencies = { "folke/snacks.nvim" } },
 		},
 		opts = {
 			claude = { enabled = true },
-			codex = {
-				enabled = true,
-				opts = { focus_after_send = false },
-			},
 		},
 		keys = {
-			{
-				"<leader>ao",
-				function()
-					require("herdr-agents").open("codex")
-				end,
-				desc = "Agent: open Codex",
-			},
-			{
-				"<leader>af",
-				function()
-					require("herdr-agents").focus("codex")
-				end,
-				desc = "Agent: focus Codex",
-			},
-			{
-				"<leader>as",
-				"<cmd>CodexSend<cr>",
-				mode = "v",
-				desc = "Agent: send selection",
-			},
-			{
-				"<leader>ad",
-				"<cmd>CodexHerdrSendDiagnostics<cr>",
-				desc = "Agent: send diagnostics to Codex",
-			},
 			{
 				"<leader>aco",
 				function()
