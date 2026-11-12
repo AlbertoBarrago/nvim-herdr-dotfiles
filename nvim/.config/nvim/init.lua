@@ -343,9 +343,9 @@ vim.g.coq_settings = { auto_start = true, keymap = { recommended = true } }
 vim.defer_fn(function()
 	require("mason").setup()
 
-	local coq = require("coq")
+	require("coq")
 	local servers = { "elixirls", "lua_ls", "pyright", "jdtls", "ts_ls" }
-	local capabilities = coq.lsp_ensure_capabilities({})
+	local capabilities = vim.lsp.protocol.make_client_capabilities()
 
 	for _, server_name in ipairs(servers) do
 		vim.lsp.config(server_name, capabilities)
@@ -372,7 +372,7 @@ vim.defer_fn(function()
 	})
 
 	if vim.fn.executable("sourcekit-lsp") == 1 then
-		vim.lsp.config("sourcekit", coq.lsp_ensure_capabilities({}))
+		vim.lsp.config("sourcekit", vim.lsp.protocol.make_client_capabilities())
 		vim.lsp.enable("sourcekit")
 	end
 
