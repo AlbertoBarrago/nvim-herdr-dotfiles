@@ -13,6 +13,7 @@ the default agent.
 - Codex CLI
 - Claude Code CLI
 - `jq`
+- `tree-sitter` CLI (`brew install tree-sitter-cli`), used by nvim-treesitter to compile parsers
 
 The installer checks these executables but does not install system packages.
 
