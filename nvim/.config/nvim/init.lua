@@ -208,7 +208,7 @@ require("lazy").setup({
 		branch = "main",
 		build = ":TSUpdate",
 		config = function()
-			local parsers = { "elixir", "heex", "eex", "lua", "python", "java", "javascript", "typescript" }
+			local parsers = { "elixir", "heex", "eex", "lua", "python", "java", "javascript", "typescript", "markdown", "markdown_inline" }
 			require("nvim-treesitter").install(parsers)
 			vim.api.nvim_create_autocmd("FileType", {
 				pattern = parsers,
