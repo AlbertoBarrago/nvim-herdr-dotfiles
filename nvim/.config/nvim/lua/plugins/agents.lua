@@ -39,4 +39,19 @@ return {
 			},
 		},
 	},
+	-- Outside herdr (e.g. Rex), load claudecode.nvim on its own so `/ide` in
+	-- Claude Code can discover this Neovim instance via ~/.claude/ide/*.lock.
+	-- Inside herdr, herdr-agents.nvim already sets it up as a dependency.
+	{
+		"coder/claudecode.nvim",
+		cond = not inside_herdr,
+		lazy = false,
+		dependencies = { "folke/snacks.nvim" },
+		opts = {},
+		keys = {
+			{ "<leader>acs", "<cmd>ClaudeCodeSend<cr>", mode = "v", desc = "Agent: send selection to Claude" },
+			{ "<leader>aca", "<cmd>ClaudeCodeDiffAccept<cr>", desc = "Agent: accept Claude diff" },
+			{ "<leader>acr", "<cmd>ClaudeCodeDiffDeny<cr>", desc = "Agent: reject Claude diff" },
+		},
+	},
 }
