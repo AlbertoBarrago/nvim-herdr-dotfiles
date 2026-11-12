@@ -13,7 +13,7 @@ if [ "$#" -ne 0 ]; then
 	exit 2
 fi
 
-for dependency in git nvim herdr codex claude jq; do
+for dependency in git nvim herdr codex claude jq tree-sitter; do
 	if ! command -v "$dependency" >/dev/null 2>&1; then
 		printf 'Missing dependency: %s\n' "$dependency" >&2
 		exit 1
